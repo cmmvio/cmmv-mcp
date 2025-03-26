@@ -1,0 +1,71 @@
+{
+    "name": "@cmmv/mcp",
+    "version": "0.0.1",
+    "description": "Model context protocol module for CMMV",
+    "author": "Andre Ferreira",
+    "keywords": [
+        "cmmv",
+        "mcp",
+        "model",
+        "context",
+        "protocol"
+    ],
+    "main": "./dist/cjs/main.js",
+    "module": "./dist/esm/main.js",
+    "types": "./dist/types/main.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/esm/main.js",
+            "require": "./dist/cjs/main.js"
+        }
+    },
+    "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">= 20.0.0"
+    },
+    "lint-staged": {
+        "**/*.ts": [
+            "prettier --ignore-path ./.prettierignore --write"
+        ]
+    },
+    "scripts": {
+        "postinstall": "pnpm approve-builds",
+        "build": "cmmv build",
+        "release": "cmmv release",
+        "lint": "cmmv lint",
+        "prepare": "husky",
+        "test": "vitest",
+        "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
+    },
+    "devDependencies": {
+        "@cmmv/cli": "latest",
+        "@commitlint/cli": "^19.8.0",
+        "@commitlint/config-angular": "^19.8.0",
+        "@commitlint/config-conventional": "^19.8.0",
+        "@tsconfig/node22": "^22.0.0",
+        "@types/node": "^22.13.10",
+        "conventional-changelog": "^6.0.0",
+        "conventional-changelog-cli": "^5.0.0",
+        "esbuild": "^0.25.1",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.0",
+        "tslib": "^2.8.1",
+        "typescript": "^5.8.2",
+        "vitest": "^3.0.9"
+    },
+    "dependencies": {
+        "@cmmv/core": "^0.9.15",
+        "@modelcontextprotocol/sdk": "^1.7.0",
+        "dotenv": "^16.4.7",
+        "reflect-metadata": "^0.2.2"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@swc/core",
+            "esbuild"
+        ]
+    }
+}
