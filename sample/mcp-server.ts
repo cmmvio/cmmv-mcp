@@ -1,5 +1,5 @@
 import { Application, Config } from '@cmmv/core';
-import { DefaultAdapter, DefaultHTTPModule } from '@cmmv/http';
+import { DefaultAdapter } from '@cmmv/http';
 import { MCPModule } from '../src/mcp.module';
 import { MCPHandlers } from './mcp-handlers';
 
