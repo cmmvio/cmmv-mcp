@@ -1,6 +1,6 @@
 {
     "name": "@cmmv/mcp",
-    "version": "0.0.2",
+    "version": "0.3.0",
     "description": "Model context protocol module for CMMV",
     "author": "Andre Ferreira",
     "keywords": [
@@ -38,8 +38,7 @@
         "release": "cmmv release",
         "lint": "cmmv lint",
         "prepare": "husky",
-        "test": "vitest",
-        "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
+        "test": "vitest"
     },
     "devDependencies": {
         "@cmmv/cli": "latest",

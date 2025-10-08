@@ -31,6 +31,7 @@ describe('MCPService', () => {
 		mockMcpServer = {
 			connect: vi.fn(),
 			tool: vi.fn(),
+			registerTool: vi.fn(),
 		};
 
 		mockStdioTransport = {
@@ -44,6 +45,8 @@ describe('MCPService', () => {
 		mockCmmvServer = {
 			get: vi.fn(),
 			post: vi.fn(),
+			delete: vi.fn(),
+			use: vi.fn(),
 			listen: vi.fn().mockResolvedValue({}),
 		};
 
@@ -63,9 +66,10 @@ describe('MCPService', () => {
 					'mcp.port': 8765,
 					'mcp.name': 'mcp',
 					'mcp.version': '0.0.1',
-					'mcp.transport': 'sse',
+					'mcp.transport': 'http',
+					'mcp.integrateWithHttp': false,
 				};
-				return configs[key] || defaultValue;
+				return configs[key] ?? defaultValue;
 			},
 		);
 
@@ -124,7 +128,7 @@ describe('MCPService', () => {
 			);
 		});
 
-		it('should setup SSE transport when configured', async () => {
+		it('should setup HTTP transport when configured', async () => {
 			await MCPService.loadConfig();
 
 			expect(cmmv).toHaveBeenCalled();
@@ -136,12 +140,16 @@ describe('MCPService', () => {
 				'/tools',
 				expect.any(Function),
 			);
-			expect(mockCmmvServer.get).toHaveBeenCalledWith(
-				'/sse',
+			expect(mockCmmvServer.post).toHaveBeenCalledWith(
+				'/mcp',
 				expect.any(Function),
 			);
-			expect(mockCmmvServer.post).toHaveBeenCalledWith(
-				'/messages',
+			expect(mockCmmvServer.get).toHaveBeenCalledWith(
+				'/mcp',
+				expect.any(Function),
+			);
+			expect(mockCmmvServer.delete).toHaveBeenCalledWith(
+				'/mcp',
 				expect.any(Function),
 			);
 			expect(mockCmmvServer.listen).toHaveBeenCalledWith({
@@ -150,65 +158,54 @@ describe('MCPService', () => {
 			});
 		});
 
-		it('should handle SSE GET request', async () => {
+		it('should handle GET /mcp session request', async () => {
 			await MCPService.loadConfig();
 
 			const getHandler = mockCmmvServer.get.mock.calls.find(
-				(call: any) => call[0] === '/sse',
-			)[1];
-			const mockReq = {};
-			const mockRes = { res: {} };
+				(call: any) => call[0] === '/mcp',
+			)?.[1];
 
-			await getHandler(mockReq, mockRes);
+			expect(getHandler).toBeDefined();
 
-			expect(SSEServerTransport).toHaveBeenCalledWith(
-				'/messages',
-				mockRes.res,
-			);
-			expect(mockMcpServer.connect).toHaveBeenCalledWith(
-				mockSSETransport,
-			);
-		});
-
-		it('should handle SSE POST request', async () => {
-			await MCPService.loadConfig();
-			MCPService.transport = mockSSETransport;
-
-			const postHandler = mockCmmvServer.post.mock.calls.find(
-				(call: any) => call[0] === '/messages',
-			)[1];
-			const mockReq = { req: {} };
-			const mockRes = { res: {} };
-
-			await postHandler(mockReq, mockRes);
-
-			expect(mockSSETransport.handlePostMessage).toHaveBeenCalledWith(
-				mockReq.req,
-				mockRes.res,
-			);
-		});
-
-		it('should not handle POST request if transport is not SSE', async () => {
-			await MCPService.loadConfig();
-			MCPService.transport = null;
-
-			const postHandler = mockCmmvServer.post.mock.calls.find(
-				(call: any) => call[0] === '/messages',
-			)[1];
-			const mockReq = { req: {} };
+			const mockReq = {
+				req: {},
+				headers: {},
+			};
 			const mockRes = {
 				res: {},
-				status: vi.fn().mockReturnThis(),
+				statusCode: 200,
 				send: vi.fn(),
 			};
 
-			await postHandler(mockReq, mockRes);
+			await getHandler(mockReq, mockRes);
 
-			expect(mockSSETransport.handlePostMessage).not.toHaveBeenCalled();
-			expect(mockRes.status).toHaveBeenCalledWith(400);
-			expect(mockRes.send).toHaveBeenCalledWith({
-				error: 'SSE transport not available',
-			});
+			// Should return 400 for missing session ID
+			expect(mockRes.statusCode).toBe(400);
+		});
+
+		it('should handle DELETE /mcp session termination', async () => {
+			await MCPService.loadConfig();
+
+			const deleteHandler = mockCmmvServer.delete.mock.calls.find(
+				(call: any) => call[0] === '/mcp',
+			)?.[1];
+
+			expect(deleteHandler).toBeDefined();
+
+			const mockReq = {
+				req: {},
+				headers: {},
+			};
+			const mockRes = {
+				res: {},
+				statusCode: 200,
+				send: vi.fn(),
+			};
+
+			await deleteHandler(mockReq, mockRes);
+
+			// Should return 400 for missing session ID
+			expect(mockRes.statusCode).toBe(400);
 		});
 
 		it('should handle health endpoint', async () => {
@@ -220,7 +217,7 @@ describe('MCPService', () => {
 			const mockReq = {};
 			const mockRes = {
 				setHeader: vi.fn(),
-				send: vi.fn(),
+				json: vi.fn(),
 			};
 
 			await healthHandler(mockReq, mockRes);
@@ -229,15 +226,14 @@ describe('MCPService', () => {
 				'Content-Type',
 				'application/json',
 			);
-			expect(mockRes.send).toHaveBeenCalledWith(
+			expect(mockRes.json).toHaveBeenCalledWith(
 				expect.objectContaining({
-					status: 'healthy',
+					status: 'ok',
 					timestamp: expect.any(String),
 					version: '0.0.1',
 					name: 'mcp',
 					transport: expect.objectContaining({
-						type: 'sse',
-						connected: expect.any(Boolean),
+						type: 'http',
 						server_initialized: expect.any(Boolean),
 					}),
 					handlers: expect.objectContaining({
@@ -257,7 +253,7 @@ describe('MCPService', () => {
 			const mockReq = {};
 			const mockRes = {
 				setHeader: vi.fn(),
-				send: vi.fn(),
+				json: vi.fn(),
 			};
 
 			await toolsHandler(mockReq, mockRes);
@@ -266,7 +262,7 @@ describe('MCPService', () => {
 				'Content-Type',
 				'application/json',
 			);
-			expect(mockRes.send).toHaveBeenCalledWith(
+			expect(mockRes.json).toHaveBeenCalledWith(
 				expect.objectContaining({
 					tools: expect.any(Array),
 					count: expect.any(Number),
@@ -304,9 +300,16 @@ describe('MCPService', () => {
 
 			await MCPService.processHandlers();
 
-			expect(mockMcpServer.tool).toHaveBeenCalledWith(
+			expect(mockMcpServer.registerTool).toHaveBeenCalledWith(
 				'test-handler',
-				{ type: 'object', properties: { name: { type: 'string' } } },
+				{
+					title: 'test-handler',
+					description: expect.any(String),
+					inputSchema: {
+						type: 'object',
+						properties: { name: { type: 'string' } },
+					},
+				},
 				expect.any(Function),
 			);
 		});
@@ -341,15 +344,15 @@ describe('MCPService', () => {
 
 			await MCPService.processHandlers();
 
-			expect(mockMcpServer.tool).toHaveBeenCalledTimes(2);
-			expect(mockMcpServer.tool).toHaveBeenCalledWith(
+			expect(mockMcpServer.registerTool).toHaveBeenCalledTimes(2);
+			expect(mockMcpServer.registerTool).toHaveBeenCalledWith(
 				'handler-1',
-				{ type: 'object' },
+				expect.objectContaining({ title: 'handler-1' }),
 				expect.any(Function),
 			);
-			expect(mockMcpServer.tool).toHaveBeenCalledWith(
+			expect(mockMcpServer.registerTool).toHaveBeenCalledWith(
 				'handler-2',
-				{ type: 'object' },
+				expect.objectContaining({ title: 'handler-2' }),
 				expect.any(Function),
 			);
 		});
@@ -361,7 +364,7 @@ describe('MCPService', () => {
 
 			await MCPService.processHandlers();
 
-			expect(mockMcpServer.tool).not.toHaveBeenCalled();
+			expect(mockMcpServer.registerTool).not.toHaveBeenCalled();
 		});
 	});
 
@@ -378,7 +381,7 @@ describe('MCPService', () => {
 			expect(Config.get).toHaveBeenCalledWith('mcp.port', 8765);
 			expect(Config.get).toHaveBeenCalledWith('mcp.name', 'mcp');
 			expect(Config.get).toHaveBeenCalledWith('mcp.version', '0.0.1');
-			expect(Config.get).toHaveBeenCalledWith('mcp.transport', 'sse');
+			expect(Config.get).toHaveBeenCalledWith('mcp.transport', 'http');
 		});
 
 		it('should use custom configuration values', async () => {

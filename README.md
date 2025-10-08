@@ -26,6 +26,13 @@ The `@cmmv/mcp` module implements the Model Context Protocol (MCP) for CMMV appl
 - **Modern SDK**: Uses the latest @modelcontextprotocol/sdk with StreamableHTTPServerTransport.
 - **HTTP Server Integration**: Can integrate with existing CMMV HTTP server or run standalone.
 - **Legacy SSE Support**: Maintains compatibility with SSE endpoints (`/sse`, `/messages`).
+- **Session Management**: Support for multiple concurrent MCP sessions with session ID tracking.
+- **Health Monitoring**: Built-in health check (`/mcp/health`) and tools listing (`/mcp/tools`) endpoints.
+- **CORS Support**: Configurable CORS for cross-origin requests.
+- **DNS Rebinding Protection**: Configurable DNS rebinding protection for security.
+- **Hook Integration**: Seamless integration using CMMV's hook system.
+- **TypeScript**: Full TypeScript support with enhanced type safety.
+- **Error Handling**: Comprehensive error handling with proper HTTP status codes.
 
 ## Installation
 
