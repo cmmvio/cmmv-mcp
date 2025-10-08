@@ -20,21 +20,21 @@ export const MCPConfig: ConfigSchema = {
 		transport: {
 			type: 'string',
 			required: true,
-			default: 'stdio',
+			default: 'http', // 'http', 'sse' or 'stdio'
 		},
 		jwtSecret: {
 			type: 'string',
-			required: true,
+			required: false,
 			default: 'your-secret-key',
 		},
 		pingInterval: {
 			type: 'number',
-			required: true,
+			required: false,
 			default: 30000,
 		},
 		connectionTimeout: {
 			type: 'number',
-			required: true,
+			required: false,
 			default: 300000,
 		},
 	},

@@ -7,7 +7,12 @@ export class MCPHandlers {
 	})
 	public async greet({ name, age }: { name: string; age: number }) {
 		return {
-			content: `Hello ${name}, you are ${age} years old`,
+			content: [
+				{
+					type: 'text',
+					text: `Hello ${name}, you are ${age} years old`,
+				},
+			],
 		};
 	}
 }

@@ -4,8 +4,11 @@ import { MCPModule } from '../src/mcp.module';
 import { MCPHandlers } from './mcp-handlers';
 
 Config.assign({
-	server: {
+	mcp: {
 		port: 8766,
+		transport: 'http',
+		name: 'cmmv-mcp-server',
+		version: '1.0.0',
 	},
 });
 

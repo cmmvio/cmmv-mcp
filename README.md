@@ -19,10 +19,11 @@ The `@cmmv/mcp` module implements the Model Context Protocol (MCP) for CMMV appl
 ## Features
 
 - **LLM Integration**: Facilitates bidirectional communication between your application and language models.
-- **Flexible Transport**: Supports transport via Server-Sent Events (SSE) or Standard I/O.
+- **Flexible Transport**: Supports transport via HTTP (StreamableHTTP), SSE, or Standard I/O.
 - **API Decorator-Based**: Intuitive decorators like `@MCPTool` to register tools.
 - **Validation with Zod**: Input schema validation using Zod.
 - **Connection Management**: Robust implementation for handling multiple concurrent connections.
+- **Modern SDK**: Uses the latest @modelcontextprotocol/sdk with StreamableHTTPServerTransport.
 
 ## Installation
 
@@ -59,7 +60,7 @@ export const MCPConfig: ConfigSchema = {
     transport: {
       type: 'string',
       required: true,
-      default: 'sse', // 'sse' or 'stdio'
+      default: 'http', // 'http', 'sse' or 'stdio'
     },
     jwtSecret: {
       type: 'string',
@@ -119,12 +120,39 @@ export class MCPHandlers {
 
 ## Using the MCP Client
 
-The MCP client can connect to your server using the SSE endpoint:
+The MCP client can connect to your server using the HTTP endpoint:
 
 ```bash
-curl -X POST http://localhost:8765/messages \\
+curl -X POST http://localhost:8765/mcp \\
   -H "Content-Type: application/json" \\
-  -d '{"type":"tool_call","name":"greet","arguments":{"name":"John","age":30}}'
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "greet",
+      "arguments": {
+        "name": "John",
+        "age": 30
+      }
+    }
+  }'
+```
+
+### Health Check
+
+You can check the server health:
+
+```bash
+curl http://localhost:8765/health
+```
+
+### List Available Tools
+
+You can list all available tools:
+
+```bash
+curl http://localhost:8765/tools
 ```
 
 ## Decorators
