@@ -22,6 +22,11 @@ export const MCPConfig: ConfigSchema = {
 			required: true,
 			default: 'http', // 'http', 'sse' or 'stdio'
 		},
+		integrateWithHttp: {
+			type: 'boolean',
+			required: false,
+			default: false,
+		},
 		jwtSecret: {
 			type: 'string',
 			required: false,

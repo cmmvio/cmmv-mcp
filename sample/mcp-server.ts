@@ -9,6 +9,7 @@ Config.assign({
 		transport: 'http',
 		name: 'cmmv-mcp-server',
 		version: '1.0.0',
+		integrateWithHttp: true, // Integrate with existing HTTP server
 	},
 });
 
