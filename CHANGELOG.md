@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.2](https://github.com/cmmv/cmmv-mcp/compare/v0.3.0...v0.3.2) (2025-10-15)
+
+### 🔧 Build Configuration
+
+* **dependencies**: Removed unnecessary `postinstall` script that executed `pnpm approve-builds`
+* **pnpm**: Removed `onlyBuiltDependencies` configuration as the module doesn't require native build dependencies
+
+### 🚀 Improvements
+
+* **installation**: Simplified package installation by removing build approval step
+* **performance**: Faster installation process without unnecessary postinstall hooks
+
+---
+
 ## [0.3.0](https://github.com/cmmv/cmmv-mcp/compare/v0.0.2...v0.3.0) (2025-01-08)
 
 ### ✨ Features

@@ -1,6 +1,6 @@
 {
     "name": "@cmmv/mcp",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Model context protocol module for CMMV",
     "author": "Andre Ferreira",
     "keywords": [
@@ -32,7 +32,6 @@
         ]
     },
     "scripts": {
-        "postinstall": "pnpm approve-builds",
         "sample": "cmmv run ./sample/mcp-server.ts",
         "build": "cmmv build",
         "release": "cmmv release",
@@ -66,12 +65,6 @@
         "jsonwebtoken": "^9.0.2",
         "reflect-metadata": "^0.2.2",
         "zod": "^3.25.76"
-    },
-    "pnpm": {
-        "onlyBuiltDependencies": [
-            "@swc/core",
-            "esbuild"
-        ]
     },
     "packageManager": "pnpm@10.18.1"
 }
