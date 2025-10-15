@@ -37,7 +37,8 @@
         "release": "cmmv release",
         "lint": "cmmv lint",
         "prepare": "husky",
-        "test": "vitest"
+        "test": "vitest",
+        "publish:wsl": "export BROWSER=wslview && npm publish"
     },
     "devDependencies": {
         "@cmmv/cli": "latest",
